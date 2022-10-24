@@ -63,6 +63,10 @@ let milliseconds = 0;
 let time;
 let audioOn = true;
 
+alert(
+  "Здрайствуйте, если вы видете это сообщение, значит проект ещё в стадии разработки и осталось допилить 2 вещи и всё. Если это возможно, проверьте максимально ближе к концу дедлайна. "
+);
+
 const audio = document.createElement("audio");
 audio.src = "../assets/audio/click.mp3";
 
@@ -153,8 +157,8 @@ function Puzzle() {
       cell.style.width = `${cellSize}px`;
       cell.style.height = `${cellSize}px`;
 
-      cell.innerHTML = i + 1; //randomNumbers[i];
-      cell.setAttribute("value", i + 1); //`${randomNumbers[i]}`);
+      cell.innerHTML = randomNumbers[i];
+      cell.setAttribute("value", `${randomNumbers[i]}`);
       //   cell.setAttribute("value", `${i + 1}`);
 
       const value = cell.getAttribute("value");
