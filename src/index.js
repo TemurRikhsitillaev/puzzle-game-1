@@ -240,10 +240,10 @@ function Puzzle() {
       cell.style.width = `${cellSize}px`;
       cell.style.height = `${cellSize}px`;
 
-      // cell.innerHTML = randomNumbers[i];
-      // cell.setAttribute("value", `${randomNumbers[i]}`);
-      cell.innerHTML = i + 1;
-      cell.setAttribute("value", `${i + 1}`);
+      cell.innerHTML = randomNumbers[i];
+      cell.setAttribute("value", `${randomNumbers[i]}`);
+      // cell.innerHTML = i + 1;
+      // cell.setAttribute("value", `${i + 1}`);
 
       const value = cell.getAttribute("value");
 
