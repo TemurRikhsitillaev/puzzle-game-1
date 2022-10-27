@@ -114,6 +114,8 @@ body {
   height: auto;
 
   margin: 0 auto;
+
+  margin-bottom: 40px;
 }
 
 .frames__container > span {
@@ -129,10 +131,11 @@ body {
   color: red;
 }
 
-.top10players__container {
+.results__container {
   width: 300px;
-  height: 400px;
+  height: 550px;
 
+  margin: 0 auto;
   padding: 10px;
 
   position: absolute;
@@ -143,7 +146,13 @@ body {
   border: 2px solid #000000;
   border-radius: 10px;
 
-  display: flex;
-  justify-content: center;
-  align-items: top;
+  display: grid;
+  grid-template-columns: repeat(2, 130px);
+  display: none;
+
+  overflow: hidden;
+}
+
+.top10Text {
+  font-size: 1.8rem;
 }

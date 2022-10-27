@@ -11,6 +11,9 @@ const timeText = document.createElement("p");
 const moveNumber = document.createElement("p");
 const timeNumber = document.createElement("p");
 const frames = document.createElement("div");
+const resultsContainer = document.createElement("div");
+const top10TimesText = document.createElement("span");
+const top10MovesText = document.createElement("span");
 
 const burgerMenu = document.createElement("div");
 
@@ -27,6 +30,9 @@ timeText.className = "time__text";
 moveNumber.className = "move__number";
 timeNumber.className = "time__number";
 frames.className = "frames__container";
+resultsContainer.className = "results__container";
+top10TimesText.className = "top10Text";
+top10MovesText.className = "top10Text";
 
 // adding text to elements
 
@@ -38,6 +44,8 @@ moveText.innerHTML = "Moves";
 timeText.innerHTML = "Time";
 moveNumber.innerHTML = 0;
 timeNumber.innerHTML = "00:00";
+top10TimesText.innerHTML = "Move: ";
+top10MovesText.innerHTML = "Time: ";
 
 // append elements
 
@@ -54,6 +62,8 @@ body.append(textContainer);
 body.append(puzzleContainer);
 body.append(frames);
 
+body.append(resultsContainer);
+
 /////////////////////////////////////////////////////////
 let frameNumber = 4;
 let cellSize = 100;
@@ -62,15 +72,69 @@ let timer;
 let milliseconds = 0;
 let time;
 let audioOn = true;
+let playerResults = [];
+let finishedCounter = 0;
+let resultsList,
+  resultOfPlayer,
+  resultsOpen = false;
 
-alert(
-  "Здрайствуйте, если вы видете это сообщение, значит проект ещё в стадии разработки и осталось допилить 2 вещи и всё. Если это возможно, проверьте максимально ближе к концу дедлайна. "
-);
+// alert(
+//   "Здрайствуйте, если вы видете это сообщение, значит проект ещё в стадии разработки и осталось допилить 2 вещи и всё. Если это возможно, проверьте максимально ближе к концу дедлайна. "
+// );
 
 const audio = document.createElement("audio");
 audio.src = "../assets/audio/click.mp3";
 
-let resultsList;
+resultsButton.addEventListener("click", () => {
+  if (resultsOpen == true) {
+    resultsContainer.style.display = "none";
+    resultsOpen = false;
+    resultsContainer.innerHTML = "";
+  } else {
+    resultsContainer.style.display = "grid";
+    resultsOpen = true;
+    resultsContainer.append(top10TimesText);
+    resultsContainer.append(top10MovesText);
+  }
+
+  resultsList = JSON.parse(localStorage.getItem("playerResults"));
+  console.log(resultsList);
+  const move = [],
+    top10Results1 = [],
+    times = [];
+
+  let copyOfMove = [];
+
+  for (let i = 0; i < resultsList.length; i++) {
+    move.push(resultsList[i].moves);
+    times.push(resultsList[i].time);
+    copyOfMove.push(resultsList[i].moves);
+  }
+
+  for (let i = 0; i < 10; i++) {
+    const minMove = Math.min(...copyOfMove);
+    const indexOfMinMove = move.indexOf(minMove);
+    const indexOfCopyOfMove = copyOfMove.indexOf(minMove);
+    copyOfMove.splice(indexOfCopyOfMove, 1);
+
+    top10Results1.push({ moves: minMove, time: times[indexOfMinMove] });
+  }
+
+  if (resultsOpen == true) {
+    for (let i = 0; i < 10; i++) {
+      const moveText = document.createElement("span");
+      const timeText = document.createElement("span");
+      moveText.className = "top10Text_move";
+      timeText.className = "top10Text_time";
+
+      moveText.innerHTML = `${top10Results1[i].moves}\n`;
+      timeText.innerHTML = `${top10Results1[i].time}\n`;
+
+      resultsContainer.append(moveText);
+      resultsContainer.append(timeText);
+    }
+  }
+});
 
 function Puzzle() {
   let empty = {
@@ -109,9 +173,8 @@ function Puzzle() {
   });
 
   function moveCell(index) {
-    moveCounter++;
     const isFinished = cellPositions.every((cell) => {
-      console.log(cell.value, cell.top * frameNumber + cell.left);
+      // console.log(cell.value, cell.top * frameNumber + cell.left);
       return cell.value == cell.top * frameNumber + cell.left;
     });
     const cell = cellPositions[index];
@@ -120,16 +183,10 @@ function Puzzle() {
     const leftDifference = Math.abs(empty.left - cell.left);
     const topDifference = Math.abs(empty.top - cell.top);
 
-    moveNumber.innerHTML = moveCounter;
-
-    if (isFinished) {
-      alert(
-        `Hooray! You solved the puzzle in ${time} and ${moveCounter - 1} moves!`
-      );
-      clearInterval(timer);
-    }
-
     if (leftDifference + topDifference > 1) return;
+
+    moveCounter++;
+    moveNumber.innerHTML = moveCounter;
 
     cell.cell.style.left = `${empty.left * cellSize}px`;
     cell.cell.style.top = `${empty.top * cellSize}px`;
@@ -141,7 +198,33 @@ function Puzzle() {
 
     cell.left = emptyLeft;
     cell.top = emptyTop;
+
+    if (isFinished) {
+      puzzleContainer.innerHTML = "";
+
+      alert(
+        `Hooray! You solved the puzzle in ${time} and ${moveCounter - 1} moves!`
+      );
+      clearInterval(timer);
+
+      if (localStorage.getItem("playerResults")) {
+        playerResults = JSON.parse(localStorage.getItem("playerResults"));
+        playerResults[playerResults.length] = {
+          time: time,
+          moves: moveCounter - 1,
+        };
+        console.log(playerResults);
+      } else {
+        playerResults[0] = {
+          time: time,
+          moves: moveCounter - 1,
+        };
+      }
+      localStorage.setItem("playerResults", JSON.stringify(playerResults));
+    }
   }
+
+  // localStorage.clear();
 
   function puzzle(randomNumbers) {
     cellPositions = [];
@@ -157,9 +240,10 @@ function Puzzle() {
       cell.style.width = `${cellSize}px`;
       cell.style.height = `${cellSize}px`;
 
-      cell.innerHTML = randomNumbers[i];
-      cell.setAttribute("value", `${randomNumbers[i]}`);
-      //   cell.setAttribute("value", `${i + 1}`);
+      // cell.innerHTML = randomNumbers[i];
+      // cell.setAttribute("value", `${randomNumbers[i]}`);
+      cell.innerHTML = i + 1;
+      cell.setAttribute("value", `${i + 1}`);
 
       const value = cell.getAttribute("value");
 
